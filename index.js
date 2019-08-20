@@ -74,6 +74,11 @@ function ytReady(req, res) {
 }
 
 express()
+    .use((req, res, next) => {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+        next();
+    })
     .get('/yt', yt)
     .get('/ytready', ytReady)
     .listen(PORT, () => console.log(`Listening on ${PORT}`))
