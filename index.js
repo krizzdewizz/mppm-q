@@ -31,10 +31,17 @@ function yt(req, res) {
         const { fileName, buffer } = data;
         const filePath = path.join(__dirname, 'tmp', `${videoId}_${Date.now()}`);
         fs.writeFileSync(filePath, buffer);
+        console.log('saving ', filePath);
         queue[videoId] = { filePath, fileName };
+
+        setTimeout(() => {
+            console.log('expired ', filePath);
+            delete queue[videoId];
+            fs.unlinkSync(filePath);
+        }, 30000);
     });
 
-    res.end(videoId);
+    res.end(JSON.stringify({ videoId }));
 
     // YD.on('error', function(error) {
     //     console.log(error);
