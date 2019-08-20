@@ -16,6 +16,11 @@ function yt(req, res) {
         return res.end('missing query parameter "vid"');
     }
 
+    if (queue[videoId]) {
+        res.sendStatus(403);
+        return;
+    }
+
     const YD = new YoutubeMp3Downloader();
 
     queue[videoId] = IN_PROGRESS;
@@ -61,6 +66,7 @@ function ytReady(req, res) {
 
     stream.on('end', () => {
         console.log('deleting ', task.filePath);
+        delete queue[videoId];
         fs.unlinkSync(task.filePath);
     });
 
