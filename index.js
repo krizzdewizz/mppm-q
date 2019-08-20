@@ -67,6 +67,24 @@ function ytReady(req, res) {
         return;
     }
 
+    res.end(JSON.stringify({ videoId }));
+}
+
+function ytGet(req, res) {
+
+    const videoId = req.query.vid;
+
+    if (!videoId) {
+        return res.end('missing query parameter "vid"');
+    }
+
+    const task = queue[videoId];
+
+    if (!task || task === IN_PROGRESS) {
+        res.sendStatus(404);
+        return;
+    }
+
     res.setHeader('Content-disposition', `attachment; filename=${task.fileName}`);
     res.setHeader('Content-type', 'audio/mpeg');
     const stream = fs.createReadStream(task.filePath);
@@ -88,6 +106,7 @@ express()
     })
     .get('/yt', yt)
     .get('/ytready', ytReady)
+    .get('/ytget', ytGet)
     .listen(PORT, () => console.log(`Listening on ${PORT}`))
 
 
