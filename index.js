@@ -1,31 +1,35 @@
 const express = require('express')
 const PORT = process.env.PORT || 5000
+const fs = require('fs');
+const path = require('path');
 
 const YoutubeMp3Downloader = require('./YoutubeMp3Downloader');
 
-function yt(req, res) {
+const queue = {};
+const IN_PROGRESS = '<<>>';
 
-    const YD = new YoutubeMp3Downloader({
-        'youtubeVideoQuality': 'highest',
-        'queueParallelism': 1,
-        'progressTimeout': 2000
-    });
+function yt(req, res) {
 
     const videoId = req.query.vid;
 
     if (!videoId) {
-        return res.end('missing query parameter vid');
+        return res.end('missing query parameter "vid"');
     }
+
+    const YD = new YoutubeMp3Downloader();
+
+    queue[videoId] = IN_PROGRESS;
 
     YD.download(videoId);
 
     YD.on('finished', (err, data) => {
         const { fileName, buffer } = data;
-        console.log('fileName', fileName);
-        res.setHeader('Content-disposition', `attachment; filename=${fileName}`);
-        res.setHeader('Content-type', 'audio/mpeg');
-        res.end(buffer);
+        const filePath = path.join(__dirname, 'tmp', `${videoId}_${Date.now()}`);
+        fs.writeFileSync(filePath, buffer);
+        queue[videoId] = { filePath, fileName };
     });
+
+    res.end(videoId);
 
     // YD.on('error', function(error) {
     //     console.log(error);
@@ -36,8 +40,36 @@ function yt(req, res) {
     // });
 }
 
+function ytReady(req, res) {
+
+    const videoId = req.query.vid;
+
+    if (!videoId) {
+        return res.end('missing query parameter "vid"');
+    }
+
+    const task = queue[videoId];
+
+    if (!task || task === IN_PROGRESS) {
+        res.sendStatus(404);
+        return;
+    }
+
+    res.setHeader('Content-disposition', `attachment; filename=${task.fileName}`);
+    res.setHeader('Content-type', 'audio/mpeg');
+    const stream = fs.createReadStream(task.filePath);
+
+    stream.on('end', () => {
+        console.log('deleting ', task.filePath);
+        fs.unlinkSync(task.filePath);
+    });
+
+    stream.pipe(res);
+}
+
 express()
     .get('/yt', yt)
+    .get('/ytready', ytReady)
     .listen(PORT, () => console.log(`Listening on ${PORT}`))
 
 
