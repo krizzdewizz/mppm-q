@@ -37,7 +37,11 @@ function yt(req, res) {
         setTimeout(() => {
             console.log('expired ', filePath);
             delete queue[videoId];
-            fs.unlinkSync(filePath);
+            try {
+                fs.unlinkSync(filePath);
+            } catch {
+                // ignore
+            }
         }, 30000);
     });
 
@@ -92,7 +96,11 @@ function ytGet(req, res) {
     stream.on('end', () => {
         console.log('deleting ', task.filePath);
         delete queue[videoId];
-        fs.unlinkSync(task.filePath);
+        try {
+            fs.unlinkSync(task.filePath);
+        } catch {
+            // ignore
+        }
     });
 
     stream.pipe(res);
