@@ -42,7 +42,7 @@ function yt(req, res) {
             } catch {
                 // ignore
             }
-        }, 30000);
+        }, 300000);
     });
 
     res.end(JSON.stringify({ videoId }));
