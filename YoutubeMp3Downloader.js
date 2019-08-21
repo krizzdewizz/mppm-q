@@ -36,11 +36,11 @@ function YoutubeMp3Downloader(options) {
         ffmpeg.setFfmpegPath(options.ffmpegPath);
     }
 
-    self.downloadQueue = async.queue((task, callback) => {
+    self.downloadQueue = async.queue(function (task, callback) {
 
         self.emit('queueSize', self.downloadQueue.running() + self.downloadQueue.length());
 
-        self.performDownload(task, (err, result) => {
+        self.performDownload(task, function (err, result) {
             callback(err, result);
         });
 
@@ -50,17 +50,17 @@ function YoutubeMp3Downloader(options) {
 
 util.inherits(YoutubeMp3Downloader, EventEmitter);
 
-YoutubeMp3Downloader.prototype.cleanFileName = fileName => {
+YoutubeMp3Downloader.prototype.cleanFileName = function (fileName) {
     const self = this;
 
-    self.fileNameReplacements.forEach(replacement => {
+    self.fileNameReplacements.forEach(function (replacement) {
         fileName = fileName.replace(replacement[0], replacement[1]);
     });
 
     return fileName;
 };
 
-YoutubeMp3Downloader.prototype.download = (videoId, fileName) => {
+YoutubeMp3Downloader.prototype.download = function (videoId, fileName) {
 
     const self = this;
     const task = {
@@ -68,7 +68,7 @@ YoutubeMp3Downloader.prototype.download = (videoId, fileName) => {
         fileName: fileName
     };
 
-    self.downloadQueue.push(task, (err, data) => {
+    self.downloadQueue.push(task, function (err, data) {
 
         self.emit('queueSize', self.downloadQueue.running() + self.downloadQueue.length());
 
@@ -81,7 +81,7 @@ YoutubeMp3Downloader.prototype.download = (videoId, fileName) => {
 
 };
 
-YoutubeMp3Downloader.prototype.performDownload = (task, callback) => {
+YoutubeMp3Downloader.prototype.performDownload = function (task, callback) {
 
     const self = this;
     const videoUrl = self.youtubeBaseUrl + task.videoId;
@@ -89,7 +89,7 @@ YoutubeMp3Downloader.prototype.performDownload = (task, callback) => {
         videoId: task.videoId
     };
 
-    ytdl.getInfo(videoUrl, err, info => {
+    ytdl.getInfo(videoUrl, function (err, info) {
 
         if (err) {
             callback(err.message, resultObj);
@@ -100,7 +100,7 @@ YoutubeMp3Downloader.prototype.performDownload = (task, callback) => {
             const videoTitle = self.cleanFileName(info.title);
             const fileName = (task.fileName ? task.fileName : (sanitize(videoTitle) || info.videoId) + '.mp3');
 
-            ytdl.getInfo(videoUrl, { quality: self.youtubeVideoQuality }, err, info => {
+            ytdl.getInfo(videoUrl, { quality: self.youtubeVideoQuality }, function (err, info) {
 
                 if (err) callback(err, null);
 
@@ -124,7 +124,7 @@ YoutubeMp3Downloader.prototype.performDownload = (task, callback) => {
                     });
 
                     const out = result.MEMFS[0];
-                    callback(undefined, { buffer: Buffer.from(out.data), fileName });
+                    callback(undefined, { buffer: Buffer.from(out.data), fileName});
                     //fs.writeFileSync('d:/downloads/vv/xxx.mp3', Buffer(out.data));
                 });
             });
