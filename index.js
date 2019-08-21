@@ -101,6 +101,8 @@ function ytGet(req, res) {
         } catch {
             // ignore
         }
+
+        global.gc();
     });
 
     stream.pipe(res);
