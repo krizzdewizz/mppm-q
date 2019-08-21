@@ -1,5 +1,4 @@
 'use strict';
-const os = require('os');
 const util = require('util');
 const EventEmitter = require('events').EventEmitter;
 const ytdl = require('ytdl-core');
@@ -23,7 +22,7 @@ function concatenate(resultConstructor, ...arrays) {
 
 function YoutubeMp3Downloader(options) {
 
-    var self = this;
+    const self = this;
 
     self.youtubeBaseUrl = 'http://www.youtube.com/watch?v=';
     self.youtubeVideoQuality = (options && options.youtubeVideoQuality ? options.youtubeVideoQuality : 'highest');
@@ -52,7 +51,7 @@ function YoutubeMp3Downloader(options) {
 util.inherits(YoutubeMp3Downloader, EventEmitter);
 
 YoutubeMp3Downloader.prototype.cleanFileName = function (fileName) {
-    var self = this;
+    const self = this;
 
     self.fileNameReplacements.forEach(function (replacement) {
         fileName = fileName.replace(replacement[0], replacement[1]);
@@ -63,8 +62,8 @@ YoutubeMp3Downloader.prototype.cleanFileName = function (fileName) {
 
 YoutubeMp3Downloader.prototype.download = function (videoId, fileName) {
 
-    var self = this;
-    var task = {
+    const self = this;
+    const task = {
         videoId: videoId,
         fileName: fileName
     };
@@ -84,9 +83,9 @@ YoutubeMp3Downloader.prototype.download = function (videoId, fileName) {
 
 YoutubeMp3Downloader.prototype.performDownload = function (task, callback) {
 
-    var self = this;
-    var videoUrl = self.youtubeBaseUrl + task.videoId;
-    var resultObj = {
+    const self = this;
+    const videoUrl = self.youtubeBaseUrl + task.videoId;
+    const resultObj = {
         videoId: task.videoId
     };
 
@@ -98,13 +97,10 @@ YoutubeMp3Downloader.prototype.performDownload = function (task, callback) {
             // Map new structure to old one
             info = info.player_response.videoDetails;
 
-            var videoTitle = self.cleanFileName(info.title);
-            var artist = 'Unknown';
-            var title = 'Unknown';
-            var thumbnail = info.thumbnail.thumbnails[0].url || null;
+            const videoTitle = self.cleanFileName(info.title);
 
             if (videoTitle.indexOf('-') > -1) {
-                var temp = videoTitle.split('-');
+                const temp = videoTitle.split('-');
                 if (temp.length >= 2) {
                     artist = temp[0].trim();
                     title = temp[1].trim();

@@ -7,6 +7,7 @@ const YoutubeMp3Downloader = require('./YoutubeMp3Downloader');
 
 const queue = {};
 const IN_PROGRESS = '<<>>';
+const YT_ERROR = '!!!!';
 
 function yt(req, res) {
 
@@ -40,20 +41,17 @@ function yt(req, res) {
             try {
                 fs.unlinkSync(filePath);
             } catch {
-                // ignore
+                // ignore, already been downloaded
             }
         }, 300000);
     });
 
     res.end(JSON.stringify({ videoId }));
 
-    // YD.on('error', function(error) {
-    //     console.log(error);
-    // });
-
-    // YD.on('progress', function(progress) {
-    //     console.log(JSON.stringify(progress));
-    // });
+    YD.on('error', error => {
+        console.log('yt error', error);
+        queue[videoId] = YT_ERROR;
+    });
 }
 
 function ytReady(req, res) {
@@ -65,6 +63,11 @@ function ytReady(req, res) {
     }
 
     const task = queue[videoId];
+
+    if (task === YT_ERROR) {
+        res.end(JSON.stringify({ ytError: true }))
+        return;
+    }
 
     if (!task || task === IN_PROGRESS) {
         res.sendStatus(404);
@@ -84,7 +87,7 @@ function ytGet(req, res) {
 
     const task = queue[videoId];
 
-    if (!task || task === IN_PROGRESS) {
+    if (typeof task === 'string') {
         res.sendStatus(404);
         return;
     }
