@@ -1,33 +1,26 @@
 {
-  "name": "node-js-getting-started",
-  "version": "0.3.0",
-  "description": "A sample Node.js app using Express 4",
+  "name": "mppm-q",
+  "version": "1.0.0",
+  "description": "Companion service for mppm",
   "engines": {
     "node": "10.x"
   },
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "node test.js"
+    "start": "node index.js"
   },
   "dependencies": {
+    "async": "^3.1.0",
     "ejs": "^2.5.6",
     "express": "^4.15.2",
     "ffmpeg.js": "^3.1.9001",
-    "youtube-mp3-downloader": "^0.6.3"
+    "sanitize-filename": "^1.6.2",
+    "ytdl-core": "^0.29.5"
   },
-  "devDependencies": {
-    "request": "^2.81.0",
-    "tape": "^4.7.0"
-  },
+  "devDependencies": {},
   "repository": {
     "type": "git",
-    "url": "https://github.com/heroku/node-js-getting-started"
+    "url": "https://github.com/krizzdewizz/mppm-q"
   },
-  "keywords": [
-    "node",
-    "heroku",
-    "express"
-  ],
   "license": "MIT"
 }
