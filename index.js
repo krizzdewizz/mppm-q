@@ -101,7 +101,6 @@ function ytGet(req, res) {
   res.setHeader('Content-disposition', `attachment; filename=${jobVideoId}.mp3`);
   res.setHeader('Content-type', 'audio/mpeg');
   res.end(jobResult);
-  clearJobResult();
 }
 
 express()
