@@ -9,6 +9,11 @@ let job;
 let jobVideoId;
 let jobResult;
 
+function clearJobResult() {
+  jobResult = undefined;
+  jobVideoId = undefined;
+}
+
 function concatenate(resultConstructor, ...arrays) {
   let totalLength = 0;
   for (const arr of arrays) {
@@ -34,6 +39,9 @@ function ytDownload(req, res) {
   if (job) {
     return res.end(`download job already running`);
   }
+
+  // clear after 5min
+  setTimeout(clearJobResult, 1000 * 60 * 5);
 
   jobVideoId = videoId;
 
@@ -93,9 +101,7 @@ function ytGet(req, res) {
   res.setHeader('Content-disposition', `attachment; filename=${jobVideoId}.mp3`);
   res.setHeader('Content-type', 'audio/mpeg');
   res.end(jobResult);
-
-  jobResult = undefined;
-  jobVideoId = undefined;
+  clearJobResult();
 }
 
 express()
