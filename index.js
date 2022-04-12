@@ -116,7 +116,9 @@ function ytGet(req, res) {
     return endRes(res, `job has not completed yet`);
   }
 
-  res.setHeader('Content-disposition', `attachment; filename=${jobVideoId}.mp3`);
+  const fileName = req.query.vid || jobVideoId;
+
+  res.setHeader('Content-disposition', `attachment; filename=${fileName}.mp3`);
   res.setHeader('Content-type', 'audio/mpeg');
   res.end(jobResult);
 }
