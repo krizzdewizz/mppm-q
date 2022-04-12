@@ -14,6 +14,10 @@ function clearJobResult() {
   jobVideoId = undefined;
 }
 
+function endRes(res, msg) {
+  res.end(JSON.stringify({ msg }));
+}
+
 function concatenate(resultConstructor, ...arrays) {
   let totalLength = 0;
   for (const arr of arrays) {
@@ -33,11 +37,11 @@ function ytDownload(req, res) {
   const videoId = req.query.vid;
 
   if (!videoId) {
-    return res.end(`missing query parameter 'vid'`);
+    return endRes(res, `missing query parameter 'vid'`);
   }
 
   if (job) {
-    return res.end(`download job already running`);
+    return endRes(res, `download job already running`);
   }
 
   // clear after 5min
@@ -84,18 +88,32 @@ function ytDownload(req, res) {
   job.then(data => jobResult = data)
     .catch(err => console.error(`error while downloading ${videoId}`, err));
 
-  res.end(`download job for ${videoId} is now running. Call /ytget later to retrieve the data`);
+  endRes(res, `download job for ${videoId} is now running. Call /ytget later to retrieve the data`);
+}
+
+function ytReady(req, res) {
+  if (!job) {
+    res.statusCode = 404;
+    return endRes(res, `no download job running`);
+  }
+
+  if (!jobResult) {
+    res.statusCode = 404;
+    return endRes(res, `job has not completed yet`);
+  }
+
+  endRes(res, 'job completed');
 }
 
 function ytGet(req, res) {
   if (!job) {
     res.statusCode = 404;
-    return res.end(`no download job running`);
+    return endRes(res, `no download job running`);
   }
 
   if (!jobResult) {
     res.statusCode = 404;
-    return res.end(`job has not completed yet`);
+    return endRes(res, `job has not completed yet`);
   }
 
   res.setHeader('Content-disposition', `attachment; filename=${jobVideoId}.mp3`);
@@ -110,6 +128,7 @@ express()
     next();
   })
   .get('/ytdownload', ytDownload)
+  .get('/ytready', ytReady)
   .get('/ytget', ytGet)
   .listen(PORT, () => console.log(`listening on ${PORT}`));
 
