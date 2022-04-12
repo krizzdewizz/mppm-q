@@ -1,9 +1,13 @@
 const express = require('express');
 const ytdl = require('ytdl-core');
 const ffmpeg = require('ffmpeg.js/ffmpeg-mp4.js');
+const superagent = require('superagent');
 
 const PORT = process.env.PORT || 5000;
 process.env.YTDL_NO_UPDATE = 'true';
+
+const SEARCH_API_URL = 'https://www.googleapis.com/youtube/v3/search';
+const SEARCH_API_KEY = process.env.SEARCH_API_KEY;
 
 let job;
 let jobVideoId;
@@ -123,6 +127,51 @@ function ytGet(req, res) {
   res.end(jobResult);
 }
 
+function ytSearch(req, res) {
+
+  if (!SEARCH_API_KEY) {
+    res.statusCode = 403;
+    return endRes(res, `forbidden`);
+  }
+
+  const q = req.query.q;
+
+  if (!q) {
+    return endRes(res, `missing query parameter 'q'`);
+  }
+
+  console.log(`search yt for '${q}'...`);
+
+  superagent.get(SEARCH_API_URL).query({
+    q,
+    key: SEARCH_API_KEY,
+    maxResults: 10,
+    part: 'snippet',
+    type: 'video',
+    alt: 'json',
+  }).end((err, searchRes) => {
+
+    if (err) {
+      res.statusCode = 500;
+      endRes(res, String(err));
+    }
+
+    const items = searchRes.body.items.map(({id, snippet}) => {
+      return {
+        id: {
+          videoId: id.videoId,
+        },
+        snippet: {
+          title: snippet.title,
+          description: snippet.description,
+        },
+      };
+    });
+
+    res.end(JSON.stringify({items}));
+  });
+}
+
 express()
   .use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
@@ -132,5 +181,6 @@ express()
   .get('/ytdownload', ytDownload)
   .get('/ytready', ytReady)
   .get('/ytget', ytGet)
+  .get('/ytsearch', ytSearch)
   .listen(PORT, () => console.log(`listening on ${PORT}`));
 
