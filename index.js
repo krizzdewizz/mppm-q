@@ -41,10 +41,12 @@ function ytDownload(req, res) {
   const videoId = req.query.vid;
 
   if (!videoId) {
+    res.statusCode = 400;
     return endRes(res, `missing query parameter 'vid'`);
   }
 
   if (job) {
+    res.statusCode = 500;
     return endRes(res, `download job already running`);
   }
 
@@ -90,7 +92,8 @@ function ytDownload(req, res) {
   });
 
   job.then(data => jobResult = data)
-    .catch(err => console.error(`error while downloading ${videoId}`, err));
+    .catch(err => console.error(`error while downloading ${videoId}`, err))
+    .finally(() => job = undefined);
 
   endRes(res, `download job for ${videoId} is now running. Call /ytget later to retrieve the data`);
 }
@@ -137,6 +140,7 @@ function ytSearch(req, res) {
   const q = req.query.q;
 
   if (!q) {
+    res.statusCode = 404;
     return endRes(res, `missing query parameter 'q'`);
   }
 
