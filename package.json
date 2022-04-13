@@ -10,6 +10,7 @@
     "start": "ts-node index.ts"
   },
   "dependencies": {
+    "cors": "^2.8.5",
     "express": "^4.17.3",
     "ffmpeg.js": "^4.2.9003",
     "superagent": "^7.1.2",

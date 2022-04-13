@@ -3,6 +3,7 @@ import ytdl from 'ytdl-core';
 import * as superagent from 'superagent';
 
 const ffmpeg = require('ffmpeg.js/ffmpeg-mp4.js');
+const cors = require('cors');
 
 const PORT = process.env.PORT || 5000;
 process.env.YTDL_NO_UPDATE = 'true';
@@ -172,11 +173,7 @@ function ytSearch(req: Request, res: Response): void {
 }
 
 express()
-    .use((req: Request, res: Response, next) => {
-      res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-      next();
-    })
+    .use(cors())
     .get('/ytdownload', ytDownload)
     .get('/ytready', ytReady)
     .get('/ytget', ytGet)
