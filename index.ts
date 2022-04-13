@@ -11,6 +11,16 @@ process.env.YTDL_NO_UPDATE = 'true';
 const SEARCH_API_URL = 'https://www.googleapis.com/youtube/v3/search';
 const SEARCH_API_KEY = process.env.SEARCH_API_KEY;
 
+interface YTVideo {
+  id: {
+    videoId: string;
+  };
+  snippet: {
+    title: string;
+    description: string;
+  };
+}
+
 let job: Promise<Buffer> | undefined;
 let jobVideoId: string | undefined;
 let jobResult: Buffer | undefined;
@@ -156,9 +166,9 @@ function ytSearch(req: Request, res: Response): void {
           endRes(res, String(err));
         }
 
-        const searchItems: any[] = searchRes.body.items;
+        const searchItems: YTVideo[] = searchRes.body.items;
 
-        const items = searchItems.map(({ id, snippet }) => ({
+        const items: YTVideo[] = searchItems.map(({ id, snippet }) => ({
           id: {
             videoId: id.videoId,
           },
