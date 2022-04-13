@@ -50,8 +50,8 @@ function ytDownload(req, res) {
     return endRes(res, `download job already running`);
   }
 
-  // clear after 5min
-  setTimeout(clearJobResult, 1000 * 60 * 5);
+  // clear after 2min
+  setTimeout(clearJobResult, 1000 * 60 * 2);
   clearJobResult();
 
   jobVideoId = videoId;
