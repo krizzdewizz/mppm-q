@@ -99,11 +99,6 @@ function ytDownload(req, res) {
 }
 
 function ytReady(req, res) {
-  if (!job) {
-    res.statusCode = 404;
-    return endRes(res, `no download job running`);
-  }
-
   if (!jobResult) {
     res.statusCode = 404;
     return endRes(res, `job has not completed yet`);
