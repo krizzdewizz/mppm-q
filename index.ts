@@ -73,7 +73,10 @@ function ytDownload(req: Request, res: Response): void {
     console.log(`downloading ${videoId}...`);
 
     // https://www.youtube.com/watch?v=vx2u5uUu3DE
-    const stream = ytdl(`https://www.youtube.com/watch?v=${videoId}`);
+    const stream = ytdl(`https://www.youtube.com/watch?v=${videoId}`, {
+      quality: 'lowest',
+      filter: (format: any) => format.container === 'mp4' && format.audioBitrate
+    });
 
     let data = new Uint8Array(0);
 
